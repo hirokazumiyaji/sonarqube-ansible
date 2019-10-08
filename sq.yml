@@ -1,0 +1,7 @@
+---
+- hosts: sq
+  remote_user: hirokazu.miyaji
+  roles:
+    - postgresql
+    - java
+    - sonarqube

@@ -1,0 +1,38 @@
+---
+
+- name: install unzip
+  yum:
+    name: unzip
+    state: present
+  become: yes
+
+- name: check exists
+  stat:
+    path: /opt/sonarqube
+    register: sonarqube
+
+
+- name: donwload
+  get_url:
+    url: https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-7.9.zip
+    dest: /tmp/sonarqube-7.9.zip
+  when: not sonarqube.stat.exists
+
+- name: unzip
+  unarchive:
+    src: /tmp/sonarqube-7.9.zip
+    dest: /opt
+    remote_src: yes
+  when: not sonarqube.stat.exists
+  become: yes
+
+- name: move directory
+  command: mv /opt/sonarqube-7.9 /opt/sonarqube
+  when: not sonarqube.stat.exists
+  become: yes
+
+- sysctl:
+    name: vm.max_map_count
+    value: 262144
+    state: present
+  become: yes
