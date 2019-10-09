@@ -1,0 +1,21 @@
+---
+
+- name: install
+  yum:
+    name: nginx
+    state: present
+  become: yes
+
+- name: conf
+  copy:
+    src: etc/nginx/nginx.conf
+    dest: /etc/nginx/nginx.conf
+  become: yes
+
+- name: start
+  systemd:
+    name: nginx.service
+    state: restarted
+    daemon-reload: yes
+    enabled: yes
+  become: yes

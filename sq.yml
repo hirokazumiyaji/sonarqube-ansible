@@ -1,7 +1,13 @@
 ---
 - hosts: sq
   remote_user: hirokazu.miyaji
+  vars:
+    sonarqube_version: 7.9
+    db_name: sonar
+    db_username: sonar
+    db_user_password: sonar
   roles:
     - postgresql
     - java
     - sonarqube
+    - nginx

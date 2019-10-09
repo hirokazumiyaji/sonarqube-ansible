@@ -18,8 +18,7 @@
 
 - name: initdb
   command: /usr/pgsql-11/bin/postgresql-11-setup initdb
-  args:
-    creates: /var/lib/pgsql/11
+  ignore_errors: True
   environment:
     PGSETUP_INITDB_OPTIONS: "-E UTF8 --no-locale"
   become: yes
@@ -34,15 +33,15 @@
 
 - name: create database
   postgresql_db:
-    name: sonar
+    name: "{{ db_name }}"
   become_user: postgres
   become: yes
 
 - name: create user
   postgresql_user:
-    db: sonar
-    name: sonar
-    password: sonar
+    db: "{{ db_name }}"
+    name: "{{ db_username }}"
+    password: "{{ db_user_password }}"
     encrypted: yes
     state: present
   become_user: postgres

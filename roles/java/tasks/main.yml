@@ -2,6 +2,6 @@
 
 - name: install
   yum:
-    name: java-1.8.0-openjdk
+    name: java-11-openjdk
     state: present
   become: yes

@@ -6,33 +6,81 @@
     state: present
   become: yes
 
+- name: create group
+  group:
+    name: sonarqube
+    state: present
+  become: yes
+
+- name: create user
+  user:
+    name: sonarqube
+    group: sonarqube
+    state: present
+  become: yes
+
 - name: check exists
   stat:
     path: /opt/sonarqube
-    register: sonarqube
-
+  register: sonarqube
 
 - name: donwload
   get_url:
-    url: https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-7.9.zip
-    dest: /tmp/sonarqube-7.9.zip
+    url: "https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-{{ sonarqube_version }}.zip"
+    dest: "/tmp/sonarqube-{{ sonarqube_version }}.zip"
   when: not sonarqube.stat.exists
 
 - name: unzip
   unarchive:
-    src: /tmp/sonarqube-7.9.zip
+    src: "/tmp/sonarqube-{{ sonarqube_version }}.zip"
     dest: /opt
     remote_src: yes
   when: not sonarqube.stat.exists
   become: yes
 
 - name: move directory
-  command: mv /opt/sonarqube-7.9 /opt/sonarqube
+  command: mv /opt/sonarqube-{{ sonarqube_version }} /opt/sonarqube
   when: not sonarqube.stat.exists
   become: yes
 
-- sysctl:
+- name:
+  file:
+    path: /opt/sonarqube
+    owner: sonarqube
+    group: sonarqube
+    recurse: yes
+    mode: 0755
+  become: yes
+
+- name: change max map count
+  sysctl:
     name: vm.max_map_count
     value: 262144
     state: present
+  become: yes
+
+- name: systemd
+  copy:
+    src: etc/systemd/system/sonar.service
+    dest: /etc/systemd/system/sonar.service
+  become: yes
+
+- name: conf
+  copy:
+    src: opt/sonarqube/conf/wrapper.conf
+    dest: /opt/sonarqube/conf/wrapper.conf
+  become: yes
+
+- name: properties
+  template:
+    src: opt/sonarqube/conf/sonar.properties.j2
+    dest: /opt/sonarqube/conf/sonar.properties
+  become: yes
+
+- name: start
+  systemd:
+    name: sonar.service
+    state: restarted
+    daemon-reload: yes
+    enabled: yes
   become: yes
