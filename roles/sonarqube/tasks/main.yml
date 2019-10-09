@@ -8,14 +8,14 @@
 
 - name: create group
   group:
-    name: sonarqube
+    name: "{{ sonarqube_group }}"
     state: present
   become: yes
 
 - name: create user
   user:
-    name: sonarqube
-    group: sonarqube
+    name: "{{ sonarqube_user }}"
+    group: "{{ sonarqube_group }}"
     state: present
   become: yes
 
@@ -46,8 +46,8 @@
 - name:
   file:
     path: /opt/sonarqube
-    owner: sonarqube
-    group: sonarqube
+    owner: "{{ sonarqube_user }}"
+    group: "{{ sonarqube_group }}"
     recurse: yes
     mode: 0755
   become: yes
@@ -60,8 +60,8 @@
   become: yes
 
 - name: systemd
-  copy:
-    src: etc/systemd/system/sonar.service
+  template:
+    src: etc/systemd/system/sonar.service.j2
     dest: /etc/systemd/system/sonar.service
   become: yes
 
@@ -69,12 +69,16 @@
   copy:
     src: opt/sonarqube/conf/wrapper.conf
     dest: /opt/sonarqube/conf/wrapper.conf
+    owner: "{{ sonarqube_user }}"
+    group: "{{ sonarqube_group }}"
   become: yes
 
 - name: properties
   template:
     src: opt/sonarqube/conf/sonar.properties.j2
     dest: /opt/sonarqube/conf/sonar.properties
+    owner: "{{ sonarqube_user }}"
+    group: "{{ sonarqube_group }}"
   become: yes
 
 - name: start

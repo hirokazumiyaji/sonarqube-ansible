@@ -2,6 +2,8 @@
 - hosts: sq
   remote_user: hirokazu.miyaji
   vars:
+    sonarqube_group: sonar
+    sonarqube_user: sonar
     sonarqube_version: 7.9
     db_name: sonar
     db_username: sonar

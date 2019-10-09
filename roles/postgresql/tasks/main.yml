@@ -23,6 +23,12 @@
     PGSETUP_INITDB_OPTIONS: "-E UTF8 --no-locale"
   become: yes
 
+- name: pg hba
+  copy:
+    src: var/lib/pgsql/11/data/pg_hba.conf
+    dest: /var/lib/pgsql/11/data/pg_hba.conf
+  become: yes
+
 - name: start postgresql
   systemd:
     name: postgresql-11
@@ -31,18 +37,18 @@
     daemon-reload: yes
   become: yes
 
-- name: create database
-  postgresql_db:
-    name: "{{ db_name }}"
-  become_user: postgres
-  become: yes
-
 - name: create user
   postgresql_user:
-    db: "{{ db_name }}"
     name: "{{ db_username }}"
     password: "{{ db_user_password }}"
     encrypted: yes
     state: present
+  become_user: postgres
+  become: yes
+
+- name: create database
+  postgresql_db:
+    name: "{{ db_name }}"
+    owner: "{{ db_username }}"
   become_user: postgres
   become: yes
