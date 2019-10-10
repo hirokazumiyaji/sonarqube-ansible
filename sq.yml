@@ -1,6 +1,5 @@
 ---
 - hosts: sq
-  remote_user: hirokazu.miyaji
   vars:
     sonarqube_group: sonar
     sonarqube_user: sonar
